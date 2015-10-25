@@ -110,7 +110,7 @@ namespace RATPack
 				foreach (PartModule pm in _engine.Modules) {
 					if (pm is ModuleEngines) {
 						ModuleEngines eng = (ModuleEngines)pm;
-						if (eng != null) {
+						if (eng != null && !eng.flameout) {
 							thrust += eng.resultingThrust;
 							maxThrust += eng.maxThrust;
 						}
@@ -140,7 +140,7 @@ namespace RATPack
 				foreach (PartModule pm in _engine.Modules) {
 					if (pm is ModuleEngines) {
 						ModuleEngines eng = (ModuleEngines)pm;
-						if (eng != null && eng.resultingThrust != 0.0f) {
+						if (eng != null && eng.resultingThrust != 0.0f && !eng.flameout) {
 							List<Transform> engTrans = eng.thrustTransforms;
 							float thrustPerNozzle = eng.resultingThrust / engTrans.Count;
 							foreach (Transform engOutput in engTrans) {
