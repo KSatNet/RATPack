@@ -1,3 +1,5 @@
+**SatNet Mod License**
+
 * This license will be applied to all files and assets in this mod unless otherwise stated in the file header or explicitly exempted below.
 * Files may be modified for personal use, but the derivative works may not be distributed without permission.
 * This work may be re-distributed provided it is not modified, clearly attributed to the author(s), and is not distributed for direct profit (distributors may not charge for this work, but may profit from ads or subscriptions to their site).

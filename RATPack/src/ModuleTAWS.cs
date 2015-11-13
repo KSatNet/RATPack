@@ -1,4 +1,6 @@
 ﻿/*
+ * Copyright 2015 SatNet
+ * 
  * This file is subject to the included LICENSE.md file. 
  */
 
@@ -189,7 +191,7 @@ namespace RATPack
 			_audioSource.Stop ();
 			_winID = GUIUtility.GetControlID (FocusType.Passive);
 
-			_prevTime = Planetarium.GetUniversalTime () + 10.0d;
+			_prevTime = Planetarium.GetUniversalTime () + 2.0d;
 			if (!forwardLookingRadar) {
 				Fields ["fltrRadar"].guiActive = false;
 				Fields ["fltrRadar"].guiActiveEditor = false;
