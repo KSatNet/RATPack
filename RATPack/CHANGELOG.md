@@ -1,3 +1,6 @@
+#0.12
+- Added current effective speed to the RAT power graph.
+- Added a part filter.
 #0.11
 - Updated power curves by Reiver
 - Mk3 Emergency Power Unit (RAT + Fuel Cell + APU)
