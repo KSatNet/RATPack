@@ -497,6 +497,11 @@ namespace RATPack
 				RenderingManager.RemoveFromPostDrawQueue (0, OnDraw);
 		}
 
+		[KSPAction("Toggle FLT Radar")]
+		public void ToggleFLTRadar()
+		{
+			fltrRadar = !fltrRadar;
+		}
 	}
 }
 
