@@ -228,10 +228,11 @@ namespace RATPack
 			} else {
 				presetString = taws.Title;
 			}
+			CheckTerrainWarning ();
 		}
 
 		/// <summary>
-		/// Called on physics update. Add the appropriate amount of charge.
+		/// Called on physics update. Determine if we should issue a warning.
 		/// </summary>
 		public void FixedUpdate()
 		{
@@ -348,7 +349,7 @@ namespace RATPack
 		}
 
 		/// <summary>
-		/// Plays the Terrain warning.
+		/// Sets the Terrain warning.
 		/// </summary>
 		private void TerrainWarning()
 		{
@@ -357,20 +358,27 @@ namespace RATPack
 			} else {
 				_warningActiveModule = this;
 			}
-
-			if (audioOutput && !_audioSource.isPlaying) {
-				if (_playing == null) {
-					_playing = _terrain;
+		}
+		/// <summary>
+		/// Plays the Terrain warning if conditions are met.
+		/// </summary>
+		private void CheckTerrainWarning()
+		{
+			if (_warningActiveModule == this) {
+				if (audioOutput && !_audioSource.isPlaying) {
+					if (_playing == null) {
+						_playing = _terrain;
+					}
+					if (_playing.Clip != null) {
+						_audioSource.clip = _playing.Clip;
+						_audioSource.Play ();
+					}
+					if (_playing != null) {
+						_playing = _playing.Next;
+					}
 				}
-				if (_playing.Clip != null) {
-					_audioSource.clip = _playing.Clip;
-					_audioSource.Play ();
-				}
-				if (_playing != null) {
-					_playing = _playing.Next;
-				}
+				ScreenMessages.PostScreenMessage ("TAWS: Terrain! Pull Up!");
 			}
-			ScreenMessages.PostScreenMessage ("TAWS: Terrain! Pull Up!");
 		}
 
 		/// <summary>
