@@ -51,7 +51,8 @@ namespace RATPack
 			PartCategorizer.AddCustomSubcategoryFilter (cat, "Thrust Reversers", thrustReverse, p => p.title.Contains("Thrust Reverse"));
 
 			// TAWS.
-			PartCategorizer.AddCustomSubcategoryFilter (cat, "TAWS", taws, p => p.moduleInfos.Exists(m=>m.moduleName.Contains("TAWS")));
+			PartCategorizer.AddCustomSubcategoryFilter (cat, "TAWS", taws, 
+				p => p.moduleInfos.Exists(m=>(m.moduleName.Contains("TAWS")))||p.title.Contains("Terrain Radar") );
 		}
 	}
 }

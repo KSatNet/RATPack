@@ -1,3 +1,8 @@
+#0.21
+- Terrain Radar
+- LES Trigger
+#0.20
+- Minor fixes and second official release.
 #0.12
 - Added current effective speed to the RAT power graph.
 - Added a part filter.
