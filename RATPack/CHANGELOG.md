@@ -1,3 +1,7 @@
+#0.30
+- Third official release.
+- Action groups for terrain radar.
+- Code cleanup.
 #0.21
 - Terrain Radar
 - LES Trigger

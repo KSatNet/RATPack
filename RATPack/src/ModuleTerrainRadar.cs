@@ -17,9 +17,19 @@ namespace RATPack
 		public float 			scanRadius = 100f;
 		[KSPField(isPersistant=true)]
 		public int				scanMode = 0;
-		[KSPField(isPersistant=true,guiActive=true,guiActiveEditor=true,guiName="Audio Alert:"),
+		[KSPField(isPersistant=true,guiActive=true,guiActiveEditor=true,guiName="Ping:"),
 			UI_Toggle(disabledText="Silent",enabledText="Active")]
 		public bool audioOutput = false;
+		[KSPField]
+		public FloatCurve altitudeCurve = new FloatCurve(new Keyframe[]
+			{
+				new Keyframe(0.0f,0.0f,0.0f,0.0f),
+				new Keyframe(50.0f,0.1f,0.0f,0.0f),
+				new Keyframe(100.0f,0.5f,0.0f,0.0f),
+				new Keyframe(1000.0f,4f,0.0f,0.0f)
+			});
+		[KSPField]
+		public AudioSequence blipSound = new AudioSequence ();
 
 		private Transform 		_transform = null;
 		private bool 			_radarVisible = false;
@@ -36,27 +46,15 @@ namespace RATPack
 		private Vector3 		_scanDirForward = new Vector3 ();
 		private Vector3 		_scanDirUp = new Vector3 ();
 		private Vector3 		_scanDirRight = new Vector3 ();
-
 		private float 			_reference = 0f;
 		private Dictionary<Vector2,float> _radarSamples = new Dictionary<Vector2,float>();
 		private Vector2 		_coord = new Vector2 ();
 		private bool 			_dirty = true;
 		private Vector2 		_maxCoord = new Vector2();
 		private Vector2 		_minCoord = new Vector2();
-
-		private double _blipTime = 0d;
-		[KSPField]
-		public FloatCurve altitudeCurve = new FloatCurve(new Keyframe[]
-			{
-				new Keyframe(0.0f,0.0f,0.0f,0.0f),
-				new Keyframe(50.0f,0.1f,0.0f,0.0f),
-				new Keyframe(100.0f,0.5f,0.0f,0.0f),
-				new Keyframe(1000.0f,4f,0.0f,0.0f)
-			});
-		[KSPField]
-		public AudioSequence blipSound = new AudioSequence ();
-		private AudioSource 			_audioSource = null;
-		private AudioSequence 			_playing = null;
+		private double 			_blipTime = 0d;
+		private AudioSource 	_audioSource = null;
+		private AudioSequence 	_playing = null;
 
 
 		public override void OnStart (StartState state)
@@ -194,12 +192,20 @@ namespace RATPack
 			else
 				RenderingManager.RemoveFromPostDrawQueue (0, OnDraw);
 		}
+
+		/// <summary>
+		/// Use the Part as the orientation reference.
+		/// </summary>
 		private void PartReference()
 		{
 			_scanDirForward = _transform.forward;
 			_scanDirUp = _transform.up;
 			_scanDirRight = _transform.right;
 		}
+
+		/// <summary>
+		/// Use the ground as the orientation reference.
+		/// </summary>
 		private void GroundReference()
 		{
 			if (vessel == null || vessel.mainBody == null) {
@@ -210,6 +216,7 @@ namespace RATPack
 			_scanDirUp = vessel.mainBody.getRFrmVel(vessel.GetWorldPos3D()).normalized;
 			_scanDirRight = -Vector3.Cross (_scanDirForward, _scanDirUp);
 		}
+
 		public void Update()
 		{
 			if (vessel == null)
@@ -299,6 +306,7 @@ namespace RATPack
 				_activeRadar = null;
 			}
 		}
+
 		public void FixedUpdate()
 		{
 			if (vessel == null)
@@ -317,6 +325,12 @@ namespace RATPack
 			}
 		}
 
+		/// <summary>
+		/// Sets the radar sample.
+		/// </summary>
+		/// <param name="x">The x coordinate.</param>
+		/// <param name="y">The y coordinate.</param>
+		/// <param name="dist">Dist.</param>
 		private void SetRadarSample (float x, float y, float dist)
 		{
 			_coord.x = x;
@@ -328,7 +342,12 @@ namespace RATPack
 			}
 		}
 
-		public void RadarScan(Transform source, float radius)
+		/// <summary>
+		/// Scan with the Radar.
+		/// </summary>
+		/// <param name="source">Source.</param>
+		/// <param name="radius">Radius.</param>
+		private void RadarScan(Transform source, float radius)
 		{
 			_min = float.NaN;
 			_max = float.NaN;
@@ -387,6 +406,11 @@ namespace RATPack
 			_dirty = true;
 		}
 
+		/// <summary>
+		/// Find the max value ignoring NaN.
+		/// </summary>
+		/// <param name="lhs">Lhs.</param>
+		/// <param name="rhs">Rhs.</param>
 		private float Max(float lhs, float rhs)
 		{
 			if (float.IsNaN(lhs))
@@ -396,6 +420,11 @@ namespace RATPack
 			return Math.Max (lhs, rhs);
 		}
 
+		/// <summary>
+		/// Find the minimum value ignoring NaN.
+		/// </summary>
+		/// <param name="lhs">Lhs.</param>
+		/// <param name="rhs">Rhs.</param>
 		private float Min(float lhs, float rhs)
 		{
 			if (float.IsNaN(lhs))
@@ -405,6 +434,14 @@ namespace RATPack
 			return Math.Min (lhs, rhs);
 		}
 
+
+		/// <summary>
+		/// Sets the pixel in the terrain radar image.
+		/// </summary>
+		/// <param name="x">The x coordinate.</param>
+		/// <param name="y">The y coordinate.</param>
+		/// <param name="value">Value.</param>
+		/// <param name="radius">Radius.</param>
 		private void SetPixel(float x, float y, float value, float radius)
 		{
 			int pixelX = (int)(x / radius * _terrain.width / 2 + _terrain.width / 2) ;
@@ -427,6 +464,11 @@ namespace RATPack
 			}
 		}
 
+		/// <summary>
+		/// Gets the color for a given distance.
+		/// </summary>
+		/// <returns>The color for distance.</returns>
+		/// <param name="dist">Dist.</param>
 		private Color GetColorForDistance(float dist)
 		{
 			if (float.IsNaN (dist) || float.IsNaN(_reference))
@@ -447,6 +489,13 @@ namespace RATPack
 			return Color.Lerp (a, b, scaledDist / scale);
 		}
 
+		/// <summary>
+		/// Sends out one radar beam from the x, y position relative to the source.
+		/// </summary>
+		/// <returns>The beam.</returns>
+		/// <param name="source">Source.</param>
+		/// <param name="x">The x coordinate.</param>
+		/// <param name="y">The y coordinate.</param>
 		private float RadarBeam(Transform source, float x, float y)
 		{
 			float distance = float.NaN;
@@ -461,6 +510,18 @@ namespace RATPack
 				distance = hit.distance;
 			}
 			return distance;
+		}
+
+		[KSPAction("Toggle Radar View")]
+		public void ToggleRadarViewAction(KSPActionParam param)
+		{
+			ToggleViewRadar ();
+		}
+
+		[KSPAction("Toggle Ping")]
+		public void TogglePingAction(KSPActionParam param)
+		{
+			audioOutput = !audioOutput;
 		}
 	}
 }
