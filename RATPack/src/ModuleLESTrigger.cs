@@ -10,6 +10,19 @@ using UnityEngine;
 
 namespace RATPack
 {
+	public class FARVesselListener: VesselModule
+	{
+		public void AerodynamicFailureStatus()
+		{
+			Vessel vessel = GetComponent<Vessel> ();
+			if (vessel != null) {
+				List<ModuleLESTrigger> triggers = vessel.FindPartModulesImplementing<ModuleLESTrigger> ();
+				foreach (ModuleLESTrigger trigger in triggers) {
+					trigger.AerodynamicFailureStatus ();
+				}
+			}
+		}
+	}
 	public class ModuleLESTrigger: PartModule
 	{
 		[KSPField(isPersistant=true,guiActive=true,guiActiveEditor=true,guiName="Auto Abort:"),
@@ -30,10 +43,17 @@ namespace RATPack
 		{
 			GameEvents.onPartDie.Remove (OnPartDie);
 		}
-
+		public void AerodynamicFailureStatus()
+		{
+			if (autoAbort) {
+				Debug.Log ("LEST: Aero Failure");
+				vessel.ActionGroups.SetGroup (KSPActionGroup.Abort, true);
+			}
+		}
 		private void OnPartDie(Part part)
 		{
 			if (autoAbort && part.vessel == vessel) {
+				Debug.Log ("LEST: Part Failure - " + part.partInfo.title);
 				vessel.ActionGroups.SetGroup (KSPActionGroup.Abort, true);
 			}
 		}
