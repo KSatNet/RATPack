@@ -1,3 +1,5 @@
+#0.31
+- LEST now triggers on aerodynamic failure when using FAR.
 #0.30
 - Third official release.
 - Action groups for terrain radar.
